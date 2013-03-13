@@ -26,7 +26,7 @@ Server Requirements
 Installation
 ************
 
-Read the installation guide at '_/doc/installation.txt'
+Read the installation guide at '_doc/installation.txt'
 
 *******
 License
