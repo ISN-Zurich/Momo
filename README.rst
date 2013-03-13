@@ -22,6 +22,21 @@ Server Requirements
 - PHP 		5.3.x	
 - MySQL		5.1.x
 
+
+**********************
+Third Party Components
+**********************
+
+The Momo codebase builds on the following third-party components:
+
+-	CodeIgniter (2.1.3)
+-	Propel (1.6.6-dev)
+-	Twitter Bootstrap (2.0.3)
+-	jQuery (1.7.2)
+-	jQuery UI (1.8.21)
+-	Date JS	(1.0 Alpha-1)
+-	Bootstrap Colorpicker
+
 ************
 Installation
 ************
@@ -32,10 +47,12 @@ Read the installation guide at '_doc/installation.txt'
 License
 *******
 
-Momo is licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html)
+- The Momo codebase is licensed under the 'Apache License, Version 2.0' (http://www.apache.org/licenses/LICENSE-2.0.html)
+- Third party components are subject to their respective licenses.
 
 *********
 Copyright
 *********
 
-Momo is copyright 2012-2013, ETH Zürich
+- The Momo codebase is copyright 2012-2013, ETH Zürich.
+- Third party components are copyright their respective copyright holders.
