@@ -1,0 +1,5 @@
+/.project
+/.buildpath
+/.settings/*
+/application/logs/*
+/_doc/_internal/*

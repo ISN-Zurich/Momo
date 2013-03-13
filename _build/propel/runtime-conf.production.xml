@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+  	<propel>
+    	<datasources default="momo">
+      		<datasource id="momo">
+        		<adapter>mysql</adapter>
+        		<connection>
+        			<classname>PropelPDO</classname>
+	          		<dsn>mysql:host=127.0.0.1;dbname=momo</dsn>
+	          		<user>root</user>
+	          		<password>root</password>
+        		</connection>
+      		</datasource>
+    	</datasources>
+  	</propel>
+</config>

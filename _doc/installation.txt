@@ -1,0 +1,334 @@
+Momo Installation Guide (Linux)
+==============================
+
+
+Requirements
+------------
+
+Momo has been tested with the following components:
+
+	- Apache 	2.2.x
+	- PHP 		5.3.x	
+	- MySQL		5.1.x
+	- Pear
+	
+At the ISN, we run Momo off a Red Hat Linux distro. Deployment on Windows
+is certainly possible but won't be addressed in this guide.
+
+Apart from the list above, all other third-party components needed to run
+Momo are integrated into the Momo distro.
+
+
+Installation
+------------
+
+The following assumes that the components mentioned under "Requirements" are
+deployed on the target system.
+
+	
+** Setup of System Services and Tools
+
+	** Set up Cron
+	
+		1. Copy the Momo distro to a suitable location on your filesystem.
+	
+		2. Cd to "momo"
+	
+		3. Run "chown {USERNAME} *.sh", where {USERNAME} is the user you will install the crontab for (most likely "root")
+	
+		4. Run "chmod u+x *.sh"
+	
+		5. Switch to the user account that is to run the Momo cron jobs
+	
+		6. Add the following entries to the crontab, taking care to properly set the "MOMO_ROOT" variable.
+	
+			#####################################################
+			# momo cron jobs
+			##
+	
+			# Momo root
+			MOMO_ROOT={PATH TO MOMO ROOT}
+	
+			# hourly momo jobs
+			# at the top of every hour
+			0 * * * * cd $MOMO_ROOT/_shellscripts && ./runcrontasks.sh hourly
+	
+			# daily momo jobs
+			# at 01:15am, every day
+			15 1 * * * cd $MOMO_ROOT/_shellscripts && ./runcrontasks.sh daily
+	
+			# weekly momo jobs
+			# at 02:15am, every monday
+			15 2 * * 1 cd $MOMO_ROOT/_shellscripts && ./runcrontasks.sh weekly
+	
+			# monthly momo jobs
+			# at 03:15am, on the first of every month
+			15 3 1 * * cd $MOMO_ROOT/_shellscripts && ./runcrontasks.sh monthly
+			
+	
+	** Install Phing	
+	
+		From the shell, run the following command sequence:
+		
+			> pear channel-discover pear.phing.info
+			> pear install phing/phing
+			
+		Subsequently, run:
+		
+		> phing
+		
+		If you get a message complaining about 'build.xml', Phing was installed correctly.
+			
+		
+** Apache Setup
+	
+	1. Enable "mod_rewrite"
+	
+	2. Create a <VirtualHost /> entry for Momo.
+	
+	3. Create a <Directory /> entry pointing to the root of the Momo source tree and insert the following rewrite ruleset:
+	
+			RewriteEngine on
+    		RewriteCond $1 !^(index\.php|images|assets|robots\.txt)
+    		RewriteRule ^(.*)$ /index.php/$1 [L]
+    		
+    4. Restart Apache
+ 
+    		
+** PHP Setup
+
+	* Check that MySQL library is loaded
+	
+		1. Apache
+		
+		2. CLI
+
+
+** MySQL Setup
+
+	1. Open a shell and connect to MySQL:
+	
+		> mysql -u{USERNAME} -p{PASSWORD} -h{HOSTNAME}
+	
+	2. Create a database for Momo:
+	
+		> CREATE DATABASE momo CHARACTER SET = utf8 COLLATE = utf8_general_ci;
+	
+	3. Switch to the newly created database 
+	
+		> USE momo;
+		
+	4. Execute the following command (copy/paste):
+	
+			CREATE TABLE `_ci_sessions` (
+			  `session_id` varchar(40) NOT NULL DEFAULT '0',
+			  `ip_address` varchar(45) NOT NULL DEFAULT '0',
+			  `user_agent` varchar(120) NOT NULL,
+			  `last_activity` int(10) unsigned NOT NULL DEFAULT '0',
+			  `user_data` text NOT NULL,
+			  PRIMARY KEY (`session_id`),
+			  KEY `last_activity_idx` (`last_activity`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8
+	
+	   Note: Above command is not delimited, it therefore won't execute until you enter ';'
+
+
+** Application Setup
+	
+	* Configure Momo
+	
+		1. In "momo/application/config.php" set the site's host name entry:
+		
+				$config['base_url']	= 'http://{HOST NAME}';
+			
+		2. In "momo/application/database.php" set the following keys:
+		
+				$db['default']['hostname'] = '{DB SERVER'S HOSTNAME}';
+				$db['default']['username'] = '{DATABASE USERNAME}';
+				$db['default']['password'] = '{DATABASE PASSWORD}';
+			
+		3. In "momo/application/email.php" adjust the following key as needed:
+			
+				$config['mailpath'] = '/usr/sbin/sendmail';
+			
+	      		  
+	    4. In "momo/application/momo-application-conf.php", decide on settings for the following keys:
+	     
+		     	$config['momo']['environment'] = 'production';
+		     		
+	     		- For a production environment set this to 'production', other choices are 'development' and 'testing'.
+	     
+	     
+	     		$config['momo']['site_name']		
+	     		
+	     		- The key will be displayed in the title bar of the login screen.
+	    		  In addition, the value is used to set the <title> attribute for each page.
+	     		
+	     		
+				$config['momo']['sendemails']
+				
+				- The key determines whether the system sends notification emails
+				
+				
+				$config['momo']['email_from_address']
+				$config['momo']['email_from_name']
+			
+				- The keys determine what sender information is added to Momo notification emails
+				
+				
+				$config['momo']['email_to_address_non_production']
+	     		
+	      		- Determines where notification emails are sent if the application environment is not set to 'production'
+	      		
+	      		
+	     5. Again, in "momo/application/momo-application-conf.php", decide whether to uncomment the following keys:
+	      
+	      		$config['momo']['cronservice']['daily_tasks'][] 	= "momo\\enforcementservice\\crontasks\\SendOvertimeBalanceLapseNotificationsTask";
+				$config['momo']['cronservice']['daily_tasks'][] 	= "momo\\enforcementservice\\crontasks\\SendVacationBalanceLapseNotificationsTask";
+				$config['momo']['cronservice']['daily_tasks'][] 	= "momo\\enforcementservice\\crontasks\\LapseOvertimeBalancesTask";
+				$config['momo']['cronservice']['daily_tasks'][] 	= "momo\\enforcementservice\\crontasks\\LapseVacationBalancesTask";
+				
+				- Momo can lapse overtime and vacation balances carried over from one year to the next at a predetermined date.
+				
+				  To enable this feature, uncomment the above keys. Note that this is a decision that needs to be made at the time
+				  the application is deployed - Momo does not support "at will" enabling/suspension of vacation/overtime lapses.
+				  
+				  Lastly, if the feature is to be made use of, the lapse dates need to be set in the Momo database.
+	
+			
+		6. Finally, set $config['momo']['php_server_timezone'] to the timezone that you're in.
+		
+      
+      * Configure Propel
+      
+	      	1. Cd to "momo/_build/propel/generator/bin"
+	      	
+	      	2. Run "chown {USERNAME} propel-gen", where {USERNAME} is the user you will run the Propel build as (most likely "root")
+		
+			3. Run "chmod u+x propel-gen"
+					
+			4. In "momo/_build/propel/build.properties" adjust the following keys as needed:
+			
+					propel.database.url = mysql:host={DATABASE HOSTNAME};dbname=momo
+					propel.database.user = {DATABASE USERNAME}
+					propel.database.password = {DATABASE PASSWORD}
+					
+				
+      * Build Model
+      
+      		1. Cd to "momo/_build"
+      		
+      		2. Run "./build"
+      		
+      		
+      * Inject Momo schema into database
+      
+      		Warning: This operation drops all existing Momo tables (with the exception of '_ci_sessions') - do not run this build target on a production system.
+      
+      		1. Cd to "momo/_build/propel"
+      		
+      		2. Run "./generator/bin/propel-gen insert-sql"
+      		
+      		
+      * Configure Momo setup data
+      
+      		1. Cd to "momo/_setup"
+      		
+      		2. Open the file "setupdata.xml" in a suitable editor and proceed as follows:
+      		
+      		   		- Tag <AdminUser>
+      		   		  This tag configures the Momo administrator account, replace the values in the contained tags as needed.
+      		   		  
+      		   		- Tag <InitialWorkplan>
+      		   		  This tag configures the initial workplan made available on the system. Note that you need to take care
+      		   		  to enter correct and complete values here, as you will not be able to edit the workplan after its creation.
+      		   		  
+      		   		  Note that the system creates will create the workplan for the "current" year.
+      		   		  
+      		   		  Complete the contained tags as follows:
+      		   		  
+      		   		  	- Tag <WeeklyWorkHours>
+      		   		  	  Determines the weekly work hours applicable to full-time work
+		
+						- Tag <AnnualVacationdaysUpTo19>
+						  Determines the annual vacation days (for full time work) for persons up to and including 19 years of age
+						
+						- Tag <AnnualVacationdays20To49>
+						  Determines the annual vacation days (for full time work) for persons from 20 to 49 years of age.
+						
+						- Tag <AnnualVacationdaysFrom50>
+						  Determines the annual vacation days (for full time work) for persons from 50 years of age onwards.
+      		   		  
+      		   		  	- Tag <Holidays>
+      		   		  	  The tag contains multiple <Holiday> subtags.
+      		   		  	  
+      		   		  	  Each such subtag defines a holiday occurring over the course of the workplan year.
+      		   		  	  
+      		   		  	  Set up a <Holiday> tag for each holiday in the year. You only need provide the day and month the holidays
+      		   		  	  occur on.
+      		   		  	  
+      		   		  	  <Holiday> tags occur in the three types: "full_day", "half_day" and "one_hour". When creating the <Holiday>
+      		   		  	  tags you need to indicate the type by making use of the "type" attribute.
+      		   		  	  
+      		   		  	  Here's an example for a "full day" holiday occurring on jan 1st:
+      		   		  	  
+      		   		  	  	<Holiday type="full_day">
+								<day>1</day>
+								<month>1</month>			
+							</Holiday>
+							
+						  Use the sample data provided as a guide.
+						  
+					- Tag <Settings>
+					  This tag configures the settings governing some system operations
+					  
+					  The tag contains multiple <Setting> tags, each of which defines one setting.
+					  
+					  The settings understood by the system are identifies by appropriate "keys". You'll notice
+					  that there are a number of <Setting> tags provided, each with a different key.
+					  
+					  You will need to visit each <Setting> tag and place a suitable value in the contained <Value> tag.
+					  Do not change the <Key> tag when doing this!
+					  
+					  The meanings of the keys are:
+					  
+					  	KEY_APPLICATION_USE_START_DATE
+					  	The date at which the application will first be used, make sure to specify the date in the format "d-m-yyyy".
+					  	
+					  	KEY_OVERTIME_EXCESSIVE_IN_SEC
+					  	The maximum amount of overtime the system will tolerate before raising an alert. The value needs to be specified in seconds-
+					  	
+					  	KEY_TIMETRACKER_LOCKOUT_DAYS
+					  	The number of grace days the system allows before locking past Timetracker days against edits.
+					  	
+					  	KEY_TIMETRACKER_RELOCK_DAYS
+					  	The number of days before unlocked Timetracker days are locked again.
+					  	
+					  	KEY_VACATION_LAPSE_DAY
+					  	The day on which vacation lapses. Note, if you do not intend to make use of this funcitonality (see crontasks section) leave this value unchanged.
+					  	
+					  	KEY_VACATION_LAPSE_MONTH
+					  	The month on which vacation lapses. Note, if you do not intend to make use of this funcitonality (see crontasks section) leave this value unchanged.
+					  	
+					  	KEY_OVERTIME_LAPSE_DAY
+					  	The day on which overtime lapses. Note, if you do not intend to make use of this funcitonality (see crontasks section) leave this value unchanged.
+					  	
+					  	KEY_OVERTIME_LAPSE_MONTH
+					  	The month on which overtime lapses. Note, if you do not intend to make use of this funcitonality (see crontasks section) leave this value unchanged.
+					  	
+					  	KEY_OO_BOOKING_DEFAULT_COLOR
+					  	The default color to use when rendering a report on out-of-office bookings (hex value).
+					  	
+					  	KEY_SITE_ADMIN_EMAIL_ADDRESS
+					  	The email address of the technical contact reponsible for the site.
+					  
+
+       * Setup Momo database for initial use
+       
+       		1. Cd to "momo"
+       		
+       		2. Run "php index.php utility initdatabase"
+       		
+       		Once the above command completes, you'll receive a message instructing you to log on to the site.
+       		
+       FIN

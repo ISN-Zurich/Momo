@@ -1,0 +1,303 @@
+@CHARSET "ISO-8859-1";
+
+/*
+
+ Copyright 2013, ETH Zürich
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License. 
+
+*/
+
+/*
+ MOMO CSS --------------------------------------------------------------
+*/
+.momo_stage {
+	margin-top: 60px;
+}
+
+.momo_footer {
+	position: fixed;
+    bottom: 0px;
+    right: 0px;
+    padding-right: 5px;
+}
+
+.momo_version {
+	font-size: 10px;
+}
+
+.momo_panel {
+	box-shadow: 0px 0px 15px 1px rgba(0,0,0,0.5);
+	border-radius: 4px;
+}
+
+.momo_panel_header {
+	height: 20px;
+	padding: 10px 5px 10px 15px;
+	color: white;
+	background-color: #0089cf;
+	-webkit-border-radius: 4px 4px 0 0;
+  	-moz-border-radius: 4px 4px 0 0;
+  	border-radius: 4px 4px 0 0;
+}
+
+.momo_panel_body {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.momo_section_header {
+	height: 15px;
+	padding: 5px 5px 5px 15px;
+	color: #707070;
+	border: thin solid rgba(0, 0, 0, 0.05);
+}
+
+.momo_section_subheader {
+	height: 15px;
+	padding: 5px 5px 5px 15px;
+	border: thin solid rgba(0, 0, 0, 0.05);
+	-webkit-border-radius: 4px 4px 4px 4px;
+  	-moz-border-radius: 4px 4px 4px 4px;
+  	border-radius: 4px 4px 4px 4px;
+	color: gray;
+	background-color: rgba(0, 0, 150, 0.08);
+	font-size: smaller;
+}
+
+.momo_section_content {	
+	color: gray;
+}
+
+.momo_section_content.accordion.current {
+	display: block;
+}
+
+.momo_section_content.accordion {
+	display: none;
+}
+
+.momo_section_footer {
+	height: 20px;
+	padding: 2px 5px 2px 15px;
+	color: #505050;
+	border: thin solid rgba(0, 0, 0, 0.05);
+}
+	
+.momo_bg_lightgray {
+	background-color: rgba(0, 0, 0, 0.08);
+}
+
+.momo_bg_lightgreen {
+	background-color: rgba(0, 200, 0, 0.08);
+}
+
+.momo_bg_lightblue {
+	background-color: #d1eaf6;
+}
+
+.momo_bg_lightred_crosshatched {
+	background:rgba(200, 0, 0, 0.10) url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAADklEQVQImWNgQAXGZHAAGioAzdMFH7oAAAAASUVORK5CYII=) repeat;
+}
+
+.momo_bg_red {
+	background-color: rgba(255, 0, 0, 0.5);
+}
+
+.momo_bg_sand {
+	background-color: #c7bea3;
+}
+
+.momo_top_border {
+	border-top: 1px solid #dddddd;
+}
+
+.momo_top_spacer20 {
+    margin-top: 20px;
+}
+
+.momo_top_spacer50 {
+    margin-top: 50px;
+}
+
+.momo_top_spacer100 {
+    margin-top: 100px;
+}
+
+.momo_left_spacer15 {
+    margin-left: 15px;
+}
+
+.momo_bottom_spacer20 {
+    margin-bottom: 20px;
+}
+
+.momo_horizcenter {
+	margin-left:auto;
+	margin-right:auto;
+	width: 86%;
+} 
+
+.momo_plain_add_on {
+ 	background-color: inherit !important;
+  	border: none !important;
+}
+
+.momo_box {
+	width: 200px;
+	height: 150px;
+  	margin: 20px 25px 10px 25px;
+  	background-color: #f5f5f5;
+  	float: left;
+}
+
+.momo_underline {
+	text-decoration: underline;
+}
+
+.momo_error {
+	border-color: #B94A48 !important;
+	color: #B94A48 !important;
+}
+
+
+/*
+ BOOTSTRAP OVERRIDES / TWEAKS / EXTENSIONS --------------------------------------------------------------
+*/
+
+/*
+ background gradient
+*/
+body {
+	background: -moz-linear-gradient(top, #B3B3B3 0%, #cccccc 80%, #ffffff 100%) fixed;
+	background: -webkit-linear-gradient(top, #B3B3B3 0%, #cccccc 80%, #ffffff 100%) fixed;
+	background: -o-linear-gradient(top, #B3B3B3 0%, #cccccc 80%, #ffffff 100%) fixed;
+}
+
+/*
+ link behavior
+*/
+form a {
+  color: inherit;
+  text-decoration: none;
+  outline: none !important;
+}
+
+form a:hover, form a:active, form a:focus {
+  color: #333333;
+  text-decoration: underline;
+  outline: none !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  outline: none !important;
+}
+
+a:hover, a:active, a:focus {
+  color: inherit;
+  text-decoration: underline;
+  outline: none !important;
+}
+
+.alert a:hover, .alert a:active, .alert a:focus {
+  text-decoration: none;
+}
+
+/*
+ set all alert backgrounds to gray
+*/
+.alert-success {
+  background-color: #F5F5F5;
+  border-color: rgba(20, 0, 0, 0.2);
+  color: #707070;
+}
+
+.alert-danger,
+.alert-error {
+  background-color: #F5F5F5;
+  border-color: rgba(20, 0, 0, 0.2);
+  color: #707070;
+}
+
+.alert-info {
+  background-color: #F5F5F5;
+  border-color:  rgba(20, 0, 0, 0.2);
+  color: #707070;
+}
+
+.popover-title {
+	font-size: 14px;
+}
+
+/*
+ set navbar to light gray gradient
+*/
+.navbar-inner {
+	background-image: -moz-linear-gradient(#bbbbbb, #eeeeee);
+	background-image: -webkit-gradient(linear, center top, center bottom, color-stop(0%, #bbbbbb), color-stop(100%, #eeeeee));
+	background-image: -o-linear-gradient(#bbbbbb, #eeeeee);
+}
+
+/*
+ set navbar menu item base color to just above black
+ disable the text shadow as it irriates on the light gray gradient
+*/
+.navbar .nav > li > a, .navbar .brand {
+	color: rgba(30, 30, 30, 1);
+	text-shadow: none;
+}
+
+/*
+ with the light gradient in effect, marking the active menu to a different
+ color is irritating - it is therefore set to the same color as the inactive menus.
+*/
+.navbar .nav .active > a {
+    color: rgba(30, 30, 30, 1);
+}
+
+/* set caret color to go with navbar gradient */
+.navbar .nav li.dropdown .dropdown-toggle .caret, .navbar .nav li.dropdown.open .caret {
+    border-bottom-color: #000000;
+    border-top-color: #000000;
+}
+
+/*
+ horizontal form with wider than standard label column
+*/
+.form-horizontal.widelabel .control-label {
+  width: 200px;
+}
+.form-horizontal.widelabel .controls {
+  margin-left: 220px;
+}
+
+/*
+ JQUERY UI OVERRIDES / TWEAKS / EXTENSIONS --------------------------------------------------------------
+*/
+
+/* set datepicker color of a selected date */
+/*
+.momo_jquery_ui_multidatepicker_selected_date a.ui-state-default {
+	background-color: lightblue;
+	color: black;
+}
+*/
+/*
+.ui-datepicker td a.ui-state-hover, .ui-datepicker td a.ui-state-highlight {
+	background-color: #0089cf !important;
+	color: black;
+}
+*/
+

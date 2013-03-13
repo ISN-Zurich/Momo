@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<MomoSetup>
+	
+	<AdminUser>	
+	
+		<FirstName>Admin</FirstName>
+		
+		<LastName>User</LastName>
+		
+		<Login>admin</Login>
+		
+		<Password>changeme</Password>
+		
+		<Email>admin@sample.com</Email>
+		
+	</AdminUser>
+
+	<InitialWorkplan>
+	
+		<WeeklyWorkHours>41</WeeklyWorkHours>
+		
+		<AnnualVacationdaysUpTo19>30</AnnualVacationdaysUpTo19>
+		
+		<AnnualVacationdays20To49>25</AnnualVacationdays20To49>
+		
+		<AnnualVacationdaysFrom50>30</AnnualVacationdaysFrom50>
+		
+		<Holidays>
+		
+			<Holiday type="full_day">
+				<day>1</day>
+				<month>1</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>2</day>
+				<month>1</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>6</day>
+				<month>4</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>9</day>
+				<month>4</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>1</day>
+				<month>5</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>17</day>
+				<month>5</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>28</day>
+				<month>5</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>1</day>
+				<month>8</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>25</day>
+				<month>12</month>			
+			</Holiday>
+			
+			<Holiday type="full_day">
+				<day>26</day>
+				<month>12</month>			
+			</Holiday>
+			
+			<Holiday type="half_day">
+				<day>16</day>
+				<month>4</month>			
+			</Holiday>
+			
+			<Holiday type="half_day">
+				<day>10</day>
+				<month>9</month>			
+			</Holiday>
+		
+			<Holiday type="half_day">
+				<day>24</day>
+				<month>12</month>			
+			</Holiday>
+			
+			<Holiday type="half_day">
+				<day>31</day>
+				<month>12</month>			
+			</Holiday>
+			
+			<Holiday type="one_hour">
+				<day>30</day>
+				<month>4</month>			
+			</Holiday>
+			
+			<Holiday type="one_hour">
+				<day>16</day>
+				<month>5</month>			
+			</Holiday>
+			
+			<Holiday type="one_hour">
+				<day>31</day>
+				<month>7</month>			
+			</Holiday>
+		
+		</Holidays>
+		
+	</InitialWorkplan>
+	
+	<Settings>
+	
+		<Setting>
+			<Key>KEY_APPLICATION_USE_START_DATE</Key>
+			<Value>1-1-2012</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_OVERTIME_EXCESSIVE_IN_SEC</Key>
+			<Value>72000</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_TIMETRACKER_LOCKOUT_DAYS</Key>
+			<Value>20</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_TIMETRACKER_RELOCK_DAYS</Key>
+			<Value>2</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_VACATION_LAPSE_DAY</Key>
+			<Value>31</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_VACATION_LAPSE_MONTH</Key>
+			<Value>3</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_OVERTIME_LAPSE_DAY</Key>
+			<Value>1</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_OVERTIME_LAPSE_MONTH</Key>
+			<Value>1</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_OO_BOOKING_DEFAULT_COLOR</Key>
+			<Value>2ea0b4</Value>
+		</Setting>
+		
+		<Setting>
+			<Key>KEY_SITE_ADMIN_EMAIL_ADDRESS</Key>
+			<Value>siteadmin@foo.com</Value>
+		</Setting>
+	
+	</Settings>
+	
+</MomoSetup>

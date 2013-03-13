@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+
+ Copyright 2013, ETH Zürich
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License. 
+
+ --> 
+ 
+<database name="momo" defaultIdMethod="native">
+
+	<!--
+		"User" models the Momo user
+	 -->
+	<table name="users" phpName="User">
+  
+	  	<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		
+		<column name="firstName" type="varchar" size="100" required="true"  />
+		<column name="lastName" type="varchar" size="100" required="true" />
+		<column name="email" type="varchar" size="100" required="true" />
+		<column name="birthdate" type="date" required="true" />
+		
+		<column name="login" type="varchar" size="50" required="true"/>							<!-- logins are unique, see below -->
+		<column name="password" type="char" size="32" required="false" />						<!-- md5 hash (32 chars) -->
+		 
+		<column name="type" type="varchar" size="50" required="true" />							<!-- ISN distinguishes "staff" and "students" -->
+		 
+		<column name="workload" type="float" required="true" />									<!-- the workload, expressed as a decimal fraction [0, 1] -->
+		<column name="offDays" type="longvarchar" required="true" />							<!-- reflects the days that the user is typically off (applicable to part-timers) (serialized array) -->
+		 
+		<column name="entryDate" type="date" required="true" />									<!-- the date that the user's employment period starts -->
+		<column name="exitDate" type="date" required="true" />									<!-- the date that the user's employment period ends -->
+		
+		<column name="role" type="varchar" size="50" required="true"/>							<!-- the user's permission role -->
+	
+		<column name="enabled" type="boolean" required="true" default="true" />					<!-- whether the user is allowed to login to the application -->
+		<column name="archived" type="boolean" required="true" default="false" />				<!-- users are not deleted from the system, rather they are "archived", i.e. made invisible -->
+		
+		<column name="lastLogin" type="timestamp" required="false" />							<!-- note: as of v1.6.6-dev, propel converts 'timestamp' to 'datetime' when talking to mySQL,
+																									 which means that this field needs to be set manually -->
+	
+		<column name="passwordResetToken" type="char" size="36" required="false" />				<!-- knowledge of this token allows the account's password to be reset (expires once password has been reset) -->
+	
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_login_unique">
+	  		<unique-column name="login" />
+		</unique>
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_email_unique">
+	  		<unique-column name="email" />
+		</unique>
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_password_reset_token_unique">
+	  		<unique-column name="passwordResetToken" />
+		</unique>
+	
+   	</table>
+   	
+   	<!--
+		"Team" models a workgroup
+	 -->
+  	<table name="teams" phpName="Team">
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		<column name="parent_id" type="integer" required="false" />									<!-- the team's (possible) parent team -->
+		
+		<column name="name" type="varchar" size="50" required="true" />								<!-- the team's name -->
+		<column name="archived" type="boolean" required="true" default="false" />					<!-- the team's archive status -->
+		
+		<!-- unique field constraints -->
+		<unique name="constr_name_unique">															<!-- the team's name  must be unique-->
+	  		<unique-column name="name" />
+		</unique>
+		
+		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="teams" onDelete="none">
+    		<reference local="parent_id" foreign="id" />
+  		</foreign-key>
+		
+	</table>
+	
+	<!--
+		This is the junction table that serves to model the N:N relationship between users and teams
+	 -->
+  	<table name="teams_users" isCrossRef="true" phpName="TeamUser">
+  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="team_id" type="integer" primaryKey="true" />
+  		<column name="user_id" type="integer" primaryKey="true" />
+  	
+  		<column name="primary" type="boolean" required="true" defaultValue="false" />		<!-- signals that a user-team relation is of type "primary" -->
+  		<column name="secondary" type="boolean" required="true" defaultValue="false" />		<!-- signals that a user-team relation is of type "secondary" -->
+  		<column name="leader" type="boolean" required="true" defaultValue="false" />		<!-- signals that a user-team relation is of type "team leader" -->
+  		
+		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="users">
+    		<reference local="user_id" foreign="id" />
+  		</foreign-key>
+  		
+		<foreign-key foreignTable="teams">
+			<reference local="team_id" foreign="id" />
+		</foreign-key>
+		
+	</table>
+	
+	
+	<!--
+		"Project" models a project
+	 -->
+  	<table name="projects" phpName="Project">
+  
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		
+		<column name="name" type="varchar" size="50" required="true" />							
+		<column name="enabled" type="boolean" required="true" default="true" />					<!-- whether or not the project enabled for users -->
+		<column name="archived" type="boolean" required="true" default="false" />				<!-- whether or not the project is "deleted" -->
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_name_unique">														<!-- the project's name must be unique -->
+	  		<unique-column name="name" />
+		</unique>
+		
+	</table>
+	
+	<!--
+		This is the junction table that serves to model the N:N relationship between projects and teams 
+	 -->
+  	<table name="teams_projects" isCrossRef="true" phpName="TeamProject">
+  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="team_id" type="integer" primaryKey="true" />
+  		<column name="project_id" type="integer" primaryKey="true" />
+    		
+		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="projects">
+    		<reference local="project_id" foreign="id" />
+  		</foreign-key>
+  		
+		<foreign-key foreignTable="teams">
+			<reference local="team_id" foreign="id" />
+		</foreign-key>
+		
+	</table>
+	
+	<!--
+		This is the junction table that serves to model the N:N relationship between projects and users 
+	 -->
+  	<table name="users_projects" isCrossRef="true" phpName="UserProject">
+  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="user_id" type="integer" primaryKey="true" />
+  		<column name="project_id" type="integer" primaryKey="true" />
+    		
+		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="projects">
+    		<reference local="project_id" foreign="id" />
+  		</foreign-key>
+  		
+		<foreign-key foreignTable="users">
+			<reference local="user_id" foreign="id" />
+		</foreign-key>
+		
+	</table>
+  
+	<!--
+		"Workplan" models a work plan.
+		A work plan knows about the parameters that govern work related parameters for a given year (i.e., vacation time, holidays).
+	 -->
+  	<table name="workplans" phpName="Workplan">
+  	
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+				
+		<column name="year" type="integer" required="true" />								<!-- the year the workplan applies to -->
+		<column name="weeklyWorkHours" type="integer" required="true" />					<!-- the number of work hours per week -->
+		<column name="annualVacationDaysUpTo19" type="integer" required="true" />			<!-- the number of annual vacation days for employees up to 19 yrs of age -->
+		<column name="annualVacationDays20to49" type="integer" required="true" />			<!-- the number of annual vacation days for employees from 20 to 49 yrs of age -->
+		<column name="annualVacationDaysFrom50" type="integer" required="true" />			<!-- the number of annual vacation days for employees from 50 yrs of age onwards -->
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_name_unique">													<!-- the year must be unique -->
+	  		<unique-column name="year" />
+		</unique>
+				
+	</table>  
+	
+	
+	<!--
+		"Holiday" models an official holiday within a work plan
+	 -->
+  	<table name="holidays" phpName="Holiday">
+  	
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+		<column name="workplan_id" type="integer" required="true" />									<!-- the workplan the holiday belongs to -->
+		
+		<column name="dateOfHoliday" type="date" required="true" />										<!-- the full date of the holiday -->
+		<column name="fullDay" type="boolean" required="true" />										<!-- true, if the holiday is a full-day holiday -->
+		<column name="halfDay" type="boolean" required="true" />										<!-- true, if the holiday is a half-day holiday -->
+		<column name="oneHour" type="boolean" required="true" />										<!-- true, if the holiday is for one hour (used for one-hour worktime reduction prior to full day holidays) -->
+	
+		<!--   -->
+	  	<!-- relations -->
+		<foreign-key foreignTable="workplans" onDelete="cascade">									<!-- workplans and holidays relate as 1:n -->
+    		<reference local="workplan_id" foreign="id" />
+  		</foreign-key>
+  		
+	</table>  
+   
+   
+   	<!--
+		"Day" models a given day in a work plan
+		The user's time tracker entries all reference a particular day. Days in turn references a given work plan.
+	 -->
+  	<table name="days" phpName="Day">
+  
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		
+		<column name="workplan_id" type="integer" required="true" />							<!-- the workplan the day belongs to -->
+		<column name="dateOfDay" type="date" required="true" />									<!-- the full date of the day -->
+		<column name="weekDayName" type="char" size="3" required="true" />						<!-- the name of the weekday, i.e. Mon, Tue, etc. -->
+		<column name="iso8601Week" type="integer" required="true" />							<!-- the week number according to iso 8601 -->
+		
+		<!--   -->
+	  	<!-- relations -->
+		<foreign-key foreignTable="workplans" onDelete="cascade">								<!-- workplans and days relate as 1:n -->
+    		<reference local="workplan_id" foreign="id" />
+  		</foreign-key>
+	
+	</table>
+	
+	<!--
+		"Tags" can be thought of Post-It notes applied to a given date.
+		A Tag carries a type and an (optional) expiration date 
+	 -->
+	<table name="tags" phpName="Tag">
+		
+		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  								
+  		<column name="day_id" type="integer" required="true" />										<!-- the day the tag pertains to -->
+  		<column name="user_id" type="integer" required="true" />									<!-- the user the tag belongs to -->
+  		<column name="expiration_date" type="timestamp" required="false" />							<!-- the tag's expiration date, if not set, the tag will persist indefinitely -->
+  		<column name="type" type="varchar" size="50" required="true" />								<!-- the tag's type -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="days" onDelete="cascade">											<!-- days and entries relate as 1:n -->
+    		<reference local="day_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<foreign-key foreignTable="users" onDelete="cascade">										<!-- users and entries relate as 1:n -->
+    		<reference local="user_id" foreign="id" />
+  		</foreign-key>
+	
+	</table>
+	
+	
+	<!--
+		"Entry" models an entry into the Timetracker and has four subclasses (articulations),
+		namely "RegularEntry", "ProjectEntry", "OOEntry" and "AdjustmentEntry".
+		
+		As a general rule, entries are associated with time values and/or time calculations
+	 -->
+	<table name="entries" phpName="Entry">
+		
+		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  								
+  		<column name="day_id" type="integer" required="true" />									<!-- the day the entry pertains to -->
+  		<column name="user_id" type="integer" required="true" />								<!-- the user the entry belongs to -->
+  	
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="days" onDelete="cascade">									<!-- days and entries relate as 1:n -->
+    		<reference local="day_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<foreign-key foreignTable="users" onDelete="cascade">									<!-- users and entries relate as 1:n -->
+    		<reference local="user_id" foreign="id" />
+  		</foreign-key>
+	
+	</table>
+	
+	
+	<!--
+		"RegularEntry" models a worktime related Timetracker entry.
+	 -->
+	<table name="regularentries" phpName="RegularEntry">
+		 
+		<!--   -->
+	  	<!-- columns --> 		
+  		<column name="regularentrytype_id" type="integer"  required="true" />					<!-- the entry's type -->
+  		<column name="from" type="time" required="true" />										<!-- the entry's start time -->
+  		<column name="until" type="time" required="true" />										<!-- the entry's end time -->
+  		<column name="comment" type="varchar" size="255" required="false" />					<!-- the entry's comment (not compulsory) -->
+  		<column name="time_interval" type="integer" required="true" />							<!-- the time interval in seconds resulting from the timespan 'from' to 'until', computed when record is persisted -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="regularentrytypes" onDelete="none">							<!-- entry types and regular entries relate as 1:n -->
+    		<reference local="regularentrytype_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<!--   -->
+	  	<!-- model object inheritance -->
+  		<behavior name="concrete_inheritance">
+    		<parameter name="extends" value="entries" />
+  		</behavior>
+  		
+	</table>
+	
+	
+	<!--
+		"ProjectEntry" models a project related Timetracker entry.
+	 -->
+	<table name="projectentries" phpName="ProjectEntry">
+		 
+		<!--   -->
+	  	<!-- columns --> 		
+  		<column name="project_id" type="integer"  required="true" />							<!-- the project that the entry pertains to -->
+  		<column name="team_id" type="integer" required="false" />								<!-- the team instance that the project time was logged for, if this is NULL the project time was logged by direct assignment of the project to the user -->
+  		<column name="time_interval" type="integer" required="true" />							<!-- the time interval in seconds that the project was worked on -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="projects" onDelete="cascade">								<!-- projects and project entries relate as 1:n -->
+    		<reference local="project_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<foreign-key foreignTable="teams" onDelete="cascade">									<!-- teams and project entries relate as 1:n -->
+    		<reference local="team_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<!--   -->
+	  	<!-- model object inheritance -->
+  		<behavior name="concrete_inheritance">
+    		<parameter name="extends" value="entries" />
+  		</behavior>
+  		
+	</table>
+	
+	
+	<!--
+		"OOEntry" models an out-of-office entry
+	 -->
+	<table name="ooentries" phpName="OOEntry">
+		  		
+		<!--   -->
+	  	<!-- columns -->
+  		<column name="oobooking_id" type="integer"  required="true" />					<!-- the entry's booking object-->
+  		<column name="type" type="varchar" size="50" required="true" />					<!-- indicates type of the entry, i.e. whether the entry applies to a full day, or morning or afternoon half-day  -->
+  	
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="oobookings" onDelete="cascade">						<!-- oobookings and oo entries relate as 1:n -->
+    		<reference local="oobooking_id" foreign="id" />
+  		</foreign-key>
+
+  		<!--   -->
+	  	<!-- model object inheritance -->
+  		<behavior name="concrete_inheritance">
+    		<parameter name="extends" value="entries" />
+  		</behavior>
+  		
+	</table>
+	
+	
+	<!--
+		"AdjustmentEntry" models an adjustment to a "user specific balance"
+		A "user specific balance" might be a vacation balance, a worktime balance, etc.
+	 -->
+	<table name="adjustmententries" phpName="AdjustmentEntry">
+		 
+		<!--   -->
+	  	<!-- columns --> 		
+  		<column name="type" type="varchar" size="50" required="true" />					<!-- the type of balance the adjustment pertains to (see class "AdjustmentEntry") -->
+  		<column name="creator" type="varchar" size="50" required="true" />				<!-- used to distinguish between system and user generated adjustments (see class "AdjustmentEntry") -->
+  		<column name="value" type="float" required="true" />							<!-- the value of the adjustment -->
+  		<column name="reason" type="varchar" size="255" required="false" />				<!-- a short textual description of the adjusment's reason -->
+  		
+  		<!--   -->
+	  	<!-- model object inheritance -->
+  		<behavior name="concrete_inheritance">
+    		<parameter name="extends" value="entries" />
+  		</behavior>
+  		
+	</table>
+	
+	
+	<!--
+		"RegularEntryType" specifies the type/meaning of a given "RegularEntry"
+	 -->
+	<table name="regularentrytypes" phpName="RegularEntryType">
+		
+		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  		
+  		<column name="type" type="varchar" size="50" required="true" />								<!-- the type designation, as displayed on the front end -->				
+  		<column name="creator" type="varchar" size="50" required="true" />							<!-- used to distinguish between system and user generated categories -->
+  		<column name="worktimeCreditAwarded" type="boolean" required="true" />						<!-- does an entry of this category award worktime credit? -->
+  		<column name="enabled" type="boolean" required="true" />									<!-- is the category enabled on the front end  -->
+  		<column name="defaultType" type="boolean" required="true" default="false"/>					<!-- used to designate the entry type that the timertracker "time entry" function defaults to -->
+  		
+  		<!-- unique field constraints -->
+		<unique name="constr_name_unique">															<!-- the type designation must be unique -->
+	  		<unique-column name="type" />
+		</unique>
+  		
+	</table>
+	
+	
+	<!--
+		"OOBookingType" specifies the type/meaning of a given "OOBooking"
+	 -->
+	<table name="oobookingtypes" phpName="OOBookingType">
+		
+		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  		
+  		<column name="type" type="varchar" size="50" required="true" />							<!-- the type designation, as displayed on the front end -->
+  		<column name="paid" type="boolean" required="true" />									<!-- whether the type is paid or not -->			
+  		<column name="creator" type="varchar" size="50" required="true" />						<!-- used to distinguish between system and user generated categories -->
+  		<column name="bookableInDays" type="boolean" required="true" />							<!-- is an entry of this category bookable in full days? -->
+  		<column name="bookableInHalfDays" type="boolean" required="true" />						<!-- is an entry of this category bookable in half days? -->
+  		<column name="rgbColorValue" type="char" size="6" required="false" />					<!-- the color value associated with the booking type -->
+  		<column name="enabled" type="boolean" required="true" />								<!-- whether the type is enabled for use  -->
+  		
+  		<!-- unique field constraints -->
+		<unique name="constr_name_unique">															<!-- the type designation must be unique -->
+	  		<unique-column name="type" />
+		</unique>
+  		
+	</table>
+	
+	
+	<!--
+		"AuditEvent" is used to model an audited user action
+	 -->
+	<table name="auditevents" phpName="AuditEvent">
+		  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  		
+  		<column name="user_id" type="integer"  required="true" />								<!-- the user that the event pertains to -->
+  		<column name="timestamp" type="timestamp" required="true" />
+  		<column name="sourcekey" type="varchar" size="50" required="true" />					<!-- the internal key of whatever source originated the event -->							
+  		<column name="action" type="varchar" size="50" required="true" />						<!-- a textual description of the audited action, e.g. "delete entry" -->
+  		<column name="details" type="longvarchar" required="true" />							<!-- detail information pertaining to the event -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="users" onDelete="cascade">									<!-- users and audit events relate as 1:n -->
+    		<reference local="user_id" foreign="id" />
+  		</foreign-key>
+  		
+	</table>
+	
+	
+	<!--
+		"OOBooking" models an out-of-office period of a given type and duration for a given user
+	 -->
+	<table name="oobookings" phpName="OOBooking">
+		  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+  		
+  		<column name="user_id" type="integer"  required="true" />								<!-- the user that the booking pertains to -->
+  		<column name="oobookingtype_id" type="integer"  required="true" />						<!-- the booking's type -->
+  		<column name="autoAssignWorktimeCredit" type="boolean" required="false" />				<!-- indicates whether the system automatically assigns worktime credit (applicable to paid bookings) -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="users" onDelete="cascade">									<!-- users and oobookings relate as 1:n -->
+    		<reference local="user_id" foreign="id" />
+  		</foreign-key>
+  		
+  		<foreign-key foreignTable="oobookingtypes" onDelete="none">								<!-- booking types and oobookings relate as 1:n -->
+    		<reference local="oobookingtype_id" foreign="id" />
+  		</foreign-key>
+  		
+	</table>
+	
+	
+	<!--
+		"OORequest" models a user originated out-of-office booking
+	 -->
+	<table name="oorequests" phpName="OORequest">
+		  		
+  		<!--   -->
+	  	<!-- columns -->
+  		<column name="id" type="integer" primaryKey="true" />
+  		<column name="status" type="varchar" size="50" required="true" />						<!-- the request's status - one of "open", "pending", "approved" or "denied" -->
+  		
+  		<column name="originator_comment" type="longvarchar" required="false" />				<!-- a comment/explanation added to the request by the originator of the request -->
+  		
+  		<!--   -->
+	  	<!-- relations -->
+  		<foreign-key foreignTable="oobookings" onDelete="cascade">								<!-- note: oobookings and oorequests relate as 1:1  -->
+    		<reference local="id" foreign="id" />
+  		</foreign-key>
+  		
+	</table>
+	
+	
+	<!--
+		"Settings" stores backend-modifiable application settings
+	 -->
+  	<table name="settings" phpName="Setting">
+  
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		
+		<column name="key" type="varchar" size="50" required="true" />									<!-- the value's key -->
+		<column name="value" type="varchar" size="250" required="true" />								<!-- the value's "value" -->
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_name_unique">																<!-- the key must be unique -->
+	  		<unique-column name="key" />
+		</unique>
+	
+	</table>
+	
+	
+	<!--
+		"ApplicationScope" stores state that is to be visible across the entire application
+	 -->
+  	<table name="applicationscope" phpName="ApplicationScopeValue">
+  
+  		<!--   -->
+	  	<!-- columns -->
+		<column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+		
+		<column name="key" type="varchar" size="100" required="true" />						<!-- the value's key -->
+		<column name="value" type="longvarchar" required="true" />							<!-- the value's "value" -->
+		
+		<!--   -->
+		<!-- unique field constraints -->
+		<unique name="constr_name_unique">													<!-- the key must be unique -->
+	  		<unique-column name="key" />
+		</unique>
+	
+	</table>
+	
+</database>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+
+ Copyright 2013, ETH Zürich
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License. 
+
+ --> 
+
+<project name="Momo" default="build">
+
+	<property name="momo.build.home" value="." />
+	<property name="classMapSourcePath" value="./propel/_build-result/conf/momo-propel-classmap.php" override="true" />
+	<property name="classMapDestPath" value="../application/config/momo-propel-classmap.php" override="true" />
+	<property name="configSourcePath" value="./propel/_build-result/conf/momo-propel-conf.php" override="true" />
+	<property name="configDestPath" value="../application/config/momo-propel-conf.php" override="true" />
+	
+	
+	<path id="momo.phing.classes">
+	    <pathelement dir="${momo.build.home}/lib/" />
+  	</path>
+
+	<taskdef name="remap" classname="task.RemapPropelClassmap" classpathRef="momo.phing.classes" />
+
+    <!-- ============================================  -->
+    <!-- Target: build                                 -->
+    <!-- ============================================  -->
+    <target name="build">
+      
+        <echo message="+-----------------------------------------------------+"/>
+	    <echo message="|                                                     |"/>
+	    <echo message="| Placing Propel classmap in CI config directory...   |"/>
+	    <echo message="|                                                     |"/>
+	    <echo message="+-----------------------------------------------------+"/>
+
+		<!--
+			test for generated propel classmap
+		-->
+		<available file="${classMapSourcePath}" property="classmapExists" value="true" />
+
+        <!--
+			if the classmap exists, remap it for CI use and copy it to CI config directory
+		-->
+		<if>
+		  	<and>
+		  		<isset property="classmapExists"/>
+		  	</and>
+		  	<then>
+			    <remap sourcefilepath="${classMapSourcePath}" destfilepath="${classMapDestPath}" />
+			    <echo msg="" />
+			    <echo message="---> Success! "/>
+			    <echo msg="" />
+		    </then>
+		    <else>
+		    	<echo msg="" />
+   				<echo message="---> Failure: No source classmap found, did Propel build complete?" />
+   				<echo msg="" />
+ 			</else>
+		</if>
+		
+		
+		<echo message="+-----------------------------------------------------+"/>
+	    <echo message="|                                                     |"/>
+	    <echo message="| Placing Propel config in CI config directory...     |"/>
+	    <echo message="|                                                     |"/>
+	    <echo message="+-----------------------------------------------------+"/>
+		
+		<!--
+			test for generated propel config script
+		-->
+		<available file="${configSourcePath}" property="configExists" value="true" />
+
+        <!--
+			if the config script exists, copy it to CI config directory
+		-->
+		<if>
+		  	<and>
+		  		<isset property="configExists"/>
+		  	</and>
+		  	<then>
+			    <copy file="${configSourcePath}" tofile="${configDestPath}" overwrite="true"/>
+			    <echo msg="" />
+			    <echo message="---> Success! "/>
+			    <echo msg="" />
+		    </then>
+		    <else>
+		    	<echo msg="" />
+   				<echo message="---> Failure: No config file found, did Propel build complete?" />
+   				<echo msg="" />
+ 			</else>
+		</if>
+		
+    </target>
+
+</project>

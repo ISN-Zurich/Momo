@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+	<log>
+    	<type>file</type>
+    	<name>./application/logs/propel.log</name>
+    	<ident>momo</ident>
+    	<level>7</level>
+  	</log>
+
+  	<propel>
+    	<datasources default="momo">
+      		<datasource id="momo">
+        		<adapter>mysql</adapter>
+        		<connection>
+        			<!-- enable database level debugging, remove the "classname" tag for deployment -->
+        			<classname>DebugPDO</classname>
+	          		<dsn>mysql:host=127.0.0.1;dbname=momo</dsn>
+	          		<user>root</user>
+	          		<password>root</password>
+        		</connection>
+      		</datasource>
+    	</datasources>
+    	
+    	<debugpdo>
+      		<logging>
+        		<details>
+          			<method>
+            			<enabled>true</enabled>
+          			</method>
+			        <time>
+			            <enabled>true</enabled>
+			        </time>
+			        <mem>
+			            <enabled>true</enabled>
+			        </mem>
+        		</details>
+      		</logging>
+   		</debugpdo>
+   		
+  	</propel>
+  	
+</config>
