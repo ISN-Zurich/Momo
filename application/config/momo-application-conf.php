@@ -30,7 +30,7 @@
 
 //
 // application version
-$config['momo']['version'] = 'opensource';
+$config['momo']['version'] = 'HEAD';
 
 //
 // site name
