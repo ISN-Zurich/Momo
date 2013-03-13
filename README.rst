@@ -2,10 +2,10 @@
 What is Momo?
 #############
 
-Momo is the time tracking application used by employees of the International Relations and
-Security Network (ISN), located in Zurich, Switzerland.
+Momo is the time tracking application used at the International Relations and Security Network (ISN).
 
 The name is taken from the lead character in Michael Ende’s novel: “The Neverending Story”.
+
 As time plays a major role in the story, we felt it would be an apt name for our application.
 
 *******************
