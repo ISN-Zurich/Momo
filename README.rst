@@ -37,6 +37,8 @@ The Momo codebase builds on the following third-party components:
 -	Date JS	(1.0 Alpha-1)
 -	Bootstrap Colorpicker
 
+Momo is packaged with all the above components plus 'PEAR Log (1.12.7)'.
+
 ************
 Installation
 ************
