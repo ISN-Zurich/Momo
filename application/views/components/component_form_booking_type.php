@@ -27,7 +27,7 @@ $component_mode == "new" ? $action = "/managebookingtypes/createtype" : $action 
 ?>
 
 <!-- link bootstrap colorpicker JS -->
-<script src="/assets/js/bootstrap-colorpicker.js"></script>
+<script src="/assets/js/third-party/bootstrap-colorpicker.js"></script>
 
 <script type="text/javascript">
 
