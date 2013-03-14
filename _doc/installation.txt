@@ -2,29 +2,24 @@ Momo Installation Guide (Linux)
 ==============================
 
 
-Requirements
-------------
+Server Requirements
+-------------------
 
-Momo has been tested with the following components:
+Momo has been tested with the following solution stack:
 
 	- Apache 	2.2.x
 	- PHP 		5.3.x	
 	- MySQL		5.1.x
-	- Pear
 	
-At the ISN, we run Momo off a Red Hat Linux distro. Deployment on Windows
-is certainly possible but won't be addressed in this guide.
+At the ISN, Momo runs on a Red Hat Linux distro.
+Deployment on Windows is certainly possible but won't be addressed in this guide.
 
 Apart from the list above, all other third-party components needed to run
-Momo are integrated into the Momo distro.
+Momo are packaged with the Momo distro.
 
 
 Installation
 ------------
-
-The following assumes that the components mentioned under "Requirements" are
-deployed on the target system.
-
 	
 ** Setup of System Services and Tools
 
