@@ -273,7 +273,7 @@ class OOBooking extends BaseOOBooking {
 		}
 		
 		// the booking type needs to be massaged as well
-		$prettyOOBookingTypeName = $this->getOOBookingType();
+		$prettyOOBookingTypeName = $this->getOOBookingType()->getType();
 		if ( $this->getOOBookingType()->getCreator() == \OOBookingType::CREATOR_SYSTEM ) {
 			$prettyOOBookingTypeName = \OOBookingType::$BOOKABLE_SYSTEM_TYPE_MAP[$this->getOOBookingType()->getType()];
 		}
