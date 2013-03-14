@@ -205,7 +205,7 @@ class UserManager extends BaseManager {
 	
 	
 	/**
-	 * Retrieves users that, at a minium, are of the indicated role
+	 * Retrieves all users that, at a minium, are of the indicated role
 	 *	 
 	 * @param 	string	$role			the minimum role that the retrieved users must belong to
 	 * 
@@ -214,6 +214,7 @@ class UserManager extends BaseManager {
 	public function getUsersOfRoleAndAbove($role) {
 		
 		$userQuery = \UserQuery::create()
+								->filterByArchived(false)
 								->orderByLastname();
 		//
 		// augment criteria based on inferior roles
