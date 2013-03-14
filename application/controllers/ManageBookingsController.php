@@ -388,6 +388,13 @@ class ManageBookingsController extends Momo_Controller {
 			}
 			
 			//
+			// if this is a paid booking, set autoassign worktime credit flag according to form value else set to null
+			$autoAssignWorktimeCredit = null;
+			if ( $editTarget->getOOBookingType()->getPaid() ) {
+				$autoAssignWorktimeCredit = $this->input->post("autoAssignWorktimeCredit");
+			}
+			
+			//
 			// when updating a booking in this context, the booking may have an associated request.
 			// if so, the POST carries state information for that request. accordingly, we call the booking manager's
 			// appropriate update method (i.e., either updateOOBooking() or updateOORequest())
@@ -408,14 +415,13 @@ class ManageBookingsController extends Momo_Controller {
 												$halfDaysAM,
 												$halfDaysPM,
 												trim($this->input->post("originatorComment")),
-												$editTarget->getAutoAssignWorktimeCredit()
+												$autoAssignWorktimeCredit
 											);
 
-				// above call passes back an OORequest, set the edit target to the associated
-				// OOBooking before we proceed							
+				// above call returns an OORequest, we set the edit target back to the associated OOBooking							
 				$editTarget = $editTarget->getOOBooking();							
 										
-				// if status has changed, we issue email notification
+				// if status has changed, issue email notification
 				if ( $originalRequestStatus !== $this->input->post("requestStatus") ) {
 					
 					// figure out pretty name of oo booking type
@@ -456,7 +462,7 @@ class ManageBookingsController extends Momo_Controller {
 												DateTimeHelper::getDateTimeFromStandardDateFormat($this->input->post("untilDate")),
 												$halfDaysAM,
 												$halfDaysPM,
-												$editTarget->getAutoAssignWorktimeCredit()
+												$autoAssignWorktimeCredit
 											);
 			}
 			
