@@ -25,6 +25,7 @@ use momo\emailservice\EmailService;
 use momo\emailservice\EmailTemplates;
 use momo\audittrailmanager\EventDescription;
 use momo\oomanager\OOManager;
+use momo\core\exceptions\MomoException;
 
 /**
  * ManageBookingsController
@@ -358,7 +359,7 @@ class ManageBookingsController extends Momo_Controller {
 			$eventDescription = new EventDescription();
 			$eventDescription->addDescriptionItem("*** pre update", "");
 			$eventDescription->addDescriptionItemDigest($editTarget->compileStateDigest());
-														
+
 			//
 			// update the booking as indicated
 			//
@@ -409,7 +410,11 @@ class ManageBookingsController extends Momo_Controller {
 												trim($this->input->post("originatorComment")),
 												$editTarget->getAutoAssignWorktimeCredit()
 											);
-													
+
+				// above call passes back an OORequest, set the edit target to the associated
+				// OOBooking before we proceed							
+				$editTarget = $editTarget->getOOBooking();							
+										
 				// if status has changed, we issue email notification
 				if ( $originalRequestStatus !== $this->input->post("requestStatus") ) {
 					
