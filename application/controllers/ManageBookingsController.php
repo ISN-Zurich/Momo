@@ -343,6 +343,7 @@ class ManageBookingsController extends Momo_Controller {
 		$teamManager = $this->getCtx()->getTeamManager();
 		$enforcementService = $this->getCtx()->getEnforcementService();
 		$auditManager = $this->getCtx()->getAuditTrailManager();
+		$tagManager = $this->getCtx()->getTagManager();
 		
 		// get db connection
 		$con = \Propel::getConnection(\OOBookingPeer::DATABASE_NAME);
@@ -362,7 +363,16 @@ class ManageBookingsController extends Momo_Controller {
 
 			//
 			// update the booking as indicated
-			//
+			// 
+			
+			// before proceeding with the actual update, we need to clear possible "week complete"
+			// flags on the weeks that the booking presently covers
+			$tagManager->deleteWeekTagByTypeAndDateRange(
+															\Tag::TYPE_WEEK_COMPLETE,
+															$editTarget->getUser(),
+															$editTarget->getStartDate(),
+															$editTarget->getEndDate()
+														);
 			
 			//
 			// compile half day date strings into arrays of DateTime objects
@@ -520,6 +530,7 @@ class ManageBookingsController extends Momo_Controller {
 		$teamManager = $this->getCtx()->getTeamManager();
 		$enforcementService = $this->getCtx()->getEnforcementService();
 		$auditManager = $this->getCtx()->getAuditTrailManager();
+		$tagManager = $this->getCtx()->getTagManager();
 		
 		// get db connection
 		$con = \Propel::getConnection(\OOBookingPeer::DATABASE_NAME);
@@ -539,6 +550,15 @@ class ManageBookingsController extends Momo_Controller {
 			// populate audit event description pre delete
 			$eventDescription = new EventDescription();
 			$eventDescription->addDescriptionItemDigest($deleteTarget->compileStateDigest());
+			
+			
+			// before proceeding with delete, we clear possible "week complete" flags on the weeks that the booking presently covered
+			$tagManager->deleteWeekTagByTypeAndDateRange(
+															\Tag::TYPE_WEEK_COMPLETE,
+															$deleteTargetUser,
+															$deleteTarget->getStartDate(),
+															$deleteTarget->getEndDate()
+														);
 			
 			//
 			// process delete according to permissions				

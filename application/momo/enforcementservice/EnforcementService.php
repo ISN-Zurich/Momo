@@ -300,7 +300,7 @@ class EnforcementService extends BaseService {
 					// get a reference to the "lapse from" workplan (the one immediately preceding the current one)
 					$lapseFromWorkplan = $workplanManager->getPlanByYear($curWorkplan->getYear() - 1);																
 					
-					// if the current workplan has no vacation lapse entry and if there exists a "lapse from" workplan,
+					// if the current workplan has no overtime lapse entry and if there exists a "lapse from" workplan,
 					// we possibly have a pending lapse in the current workplan
 					if ( 	($curWorkplanLapseAdjustmentEntries->count() == 0)
 						 && ($lapseFromWorkplan !== null) ) {

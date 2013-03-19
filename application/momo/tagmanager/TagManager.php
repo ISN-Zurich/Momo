@@ -21,7 +21,6 @@
 namespace momo\tagmanager;
 
 use momo\core\helpers\DateTimeHelper;
-
 use momo\core\exceptions\MomoException;
 use momo\core\managers\BaseManager;
 
@@ -180,6 +179,30 @@ class TagManager extends BaseManager {
 		}
 	}
 	
+	/**
+	 * Deletes a user tag of the indicated type for the week on which the indicated date falls
+	 * 
+	 * @param	DateTime	$date
+	 * @param	string		$tagType
+	 * @param	User		$user
+	 */
+	public function deleteWeekTag($date, $tagType, $user) {						
+		// query for the tags of the indicated type that fall on the week containing the indicated day						
+		$deleteTags = \TagQuery::create()
+							->useDayQuery()
+								->filterByDateOfDay(DateTimeHelper::getStartOfWeek($date), \TagQuery::GREATER_EQUAL)
+								->filterByDateOfDay(DateTimeHelper::getEndOfWeek($date), \TagQuery::LESS_EQUAL)
+							->endUse()
+							->filterByUser($user)
+							->filterByType($tagType)
+							->find();
+							
+		// delete the retrieved tags
+		\TagQuery::create()
+					->filterById($deleteTags->toKeyValue("id", "id"))
+					->delete();										
+	}
+	
 	
 	/**
 	 * Deletes a user tag of the indicated type from a given day
@@ -202,20 +225,21 @@ class TagManager extends BaseManager {
 	
 	
 	/**
-	 * Deletes all tags that carry a certain tag for a given user and date range
+	 * Deletes all day tags that carry a certain tag for a given user and date range
 	 * 
 	 * @param	string		$tagType
 	 * @param	User		$user
 	 * @param	DateTime	$fromDate		- the start date of the range to consider
-	 * @param	DateTime	$untilDate		- the end date of the range to consider (set to null, if there is to be no upper date limit)
+	 * @param	DateTime	$untilDate		- the end date of the range to consider
 	 * 
 	 */
-	public function deleteDayTagByTypeAndDateRange($tagType, $user, $fromDate, $untilDate=null) {
+	public function deleteDayTagByTypeAndDateRange($tagType, $user, $fromDate, $untilDate) {
 		
 		// construct the delete query
 		$deleteTagQuery = \TagQuery::create()
 									->useDayQuery()
-										->filterByDateOfDay($fromDate, \DayQuery::GREATER_EQUAL)
+										->filterByDateOfDay(DateTimeHelper::getStartOfWeek($fromDate), \TagQuery::GREATER_EQUAL)
+										->filterByDateOfDay(DateTimeHelper::getEndOfWeek($untilDate), \TagQuery::LESS_EQUAL)
 									->endUse()
 									->filterByUser($user)
 									->filterByType($tagType);
@@ -226,6 +250,57 @@ class TagManager extends BaseManager {
 
 		// find and delete the tags
 		$deleteTags = $deleteTagQuery->find()->delete();
+										
+	}
+	
+	
+	/**
+	 * Deletes all tags of the indicated type for a given user and date range employing week semantics.
+	 * 
+	 * The method guarantees that the week containing the range end points and all the week
+	 * in between have the indicated tag cleared.
+	 * 
+	 * @param	string		$tagType
+	 * @param	User		$user
+	 * @param	DateTime	$fromDate		- the start date of the range to consider
+	 * @param	DateTime	$untilDate		- the end date of the range to consider (set to null, if there is to be no upper date limit)
+	 */
+	public function deleteWeekTagByTypeAndDateRange($tagType, $user, $fromDate, $untilDate) {
+		
+		// get db connection (for TX operations, it is best practice to specify connection explicitly)
+		$con = \Propel::getConnection(\TagPeer::DATABASE_NAME);
+		
+		// start TX
+		$con->beginTransaction();
+ 
+		try {
+		
+			// the currently processed date
+			$curDate = $fromDate;
+			
+			// we step forward until we exceed the end date
+			while ( $curDate <= $untilDate ) {
+				// delete the week tag for the current date
+				$this->deleteWeekTag($curDate, $tagType, $user);
+				
+				// step the current date forward one week
+				$curDate = DateTimeHelper::addDaysToDateTime($curDate, 7);
+			}
+			
+			// if the until date's week day lies before that of the from date, we need to
+			// delete the tag of the until date explicitly
+			if ( DateTimeHelper::getWeekDayNumberFromDateTime($untilDate) > DateTimeHelper::getWeekDayNumberFromDateTime($fromDate) ) {
+				$this->deleteWeekTag($untilDate, $tagType, $user);
+			}
+
+			$con->commit();
+		}
+		catch (\PropelException $ex) {
+			// roll back
+			$con->rollback();
+			// rethrow
+			throw new MomoException("TagManager:deleteWeekTagByTypeAndDateRange() - a database error has occurred while attempting to delete the week tags for user with id: " . $user->getId(), 0, $ex);
+		}		
 										
 	}
 	
