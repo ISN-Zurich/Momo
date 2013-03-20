@@ -230,22 +230,23 @@ class TagManager extends BaseManager {
 	 * @param	string		$tagType
 	 * @param	User		$user
 	 * @param	DateTime	$fromDate		- the start date of the range to consider
-	 * @param	DateTime	$untilDate		- the end date of the range to consider
+	 * @param	DateTime	$untilDate		- the end date of the range to consider (optional)
 	 * 
 	 */
-	public function deleteDayTagByTypeAndDateRange($tagType, $user, $fromDate, $untilDate) {
+	public function deleteDayTagByTypeAndDateRange($tagType, $user, $fromDate, $untilDate=null) {
 		
 		// construct the delete query
 		$deleteTagQuery = \TagQuery::create()
 									->useDayQuery()
-										->filterByDateOfDay(DateTimeHelper::getStartOfWeek($fromDate), \TagQuery::GREATER_EQUAL)
-										->filterByDateOfDay(DateTimeHelper::getEndOfWeek($untilDate), \TagQuery::LESS_EQUAL)
+										->filterByDateOfDay($fromDate, \TagQuery::GREATER_EQUAL)
 									->endUse()
 									->filterByUser($user)
 									->filterByType($tagType);
 
 		if ( $untilDate !== null ) {
-			$deleteTagQuery->filterByDateOfDay($untilDate, \DayQuery::LESS_EQUAL);
+				$deleteTagQuery->useDayQuery()
+									->filterByDateOfDay($untilDate, \TagQuery::LESS_EQUAL)
+								->endUse();
 		}							
 
 		// find and delete the tags
