@@ -85,8 +85,8 @@ class ManageBookingsController extends Momo_Controller {
 		$fromDate = null;
 		$untilDate = null;
 		$untilDateForQuery = null;
+		$ooBookings = new \PropelCollection(array());
 		
-			
 		// process params that govern display of list
 		
 		// target user
@@ -127,20 +127,17 @@ class ManageBookingsController extends Momo_Controller {
 			// get collection of users that may be accessed
 			$allowedUsers = $userManager->getAllUsers();
 			
-			// if there is no targetUser defined, retrieve the bookings for all allowed users
-			$userScope = $allowedUsers;
+			// retrieve bookings if there is a target user specified
 			if ( $targetUser !== null ) {
-				$userScope = $targetUser;
+				// get collection of bookings that may be accessed
+				$ooBookings = $ooManager->getOOBookingsInDateRange(	
+																	$targetUser,
+																	$fromDate,
+																	$untilDate,
+																	"asc"
+															 	);
 			}
 			
-			// get collection of bookings that may be accessed
-			$ooBookings = $ooManager->getOOBookingsInDateRange(	
-																$userScope,
-																$fromDate,
-																$untilDate,
-																"asc"
-															   );
-		
 		}
 		else if ( 		$this->authorize(Permissions::OO_BOOKINGS_LIST_ASSIGNED_USER_BOOKINGS, true)
 					&&  $this->authorize(Permissions::USERS_LIST_ASSIGNED_USERS_OF_LOWER_ROLE, true)
@@ -175,22 +172,21 @@ class ManageBookingsController extends Momo_Controller {
 			// there is no lower role, hence there are no users at all that may be listed
 			else {
 				// there are no lower roles, we set the allowedusers collection to an empty collection
-				$allowedUsers = $userManager->getUsersByIdList("-1");
+				//$allowedUsers = $userManager->getUsersByIdList("-1");
+				$allowedUsers = new \PropelCollection(array());
 			}
 			
-			// if there is no targetUser defined, retrieve the bookings for all allowed users
-			$userScope = $allowedUsers;
-			if ( $targetUser !== null ) {
-				$userScope = $targetUser;
-			}
-			
-			// get collection of bookings that may be accessed
-			$ooBookings = $ooManager->getOOBookingsInDateRange(	
-																$userScope,
+			// retrieve bookings if there is a target user specified and user access is permitted
+			if ( $allowedUsers->search($targetUser) !== false ) {
+				// get collection of bookings that may be accessed
+				$ooBookings = $ooManager->getOOBookingsInDateRange(	
+																$targetUser,
 																$fromDate,
 																$untilDate,
 																"asc"
 															   );	
+			}
+	
 		}
 		else {
 			throw new MomoException("ManageBookingsController:listBookings() - Unable to list bookings as the active user does not have the requisite permissions.");

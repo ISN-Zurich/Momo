@@ -67,11 +67,9 @@ use momo\core\helpers\DateTimeHelper;
 		//
 		// event handlers for "user" selection narrowing controls
 		$("#targetUserId").change(function() {
-
 			// for these, simply call the controller action
 			$("#form").submit();
 		});
-
 		
 		//
 		// event handlers for "from" and "until" selection narrowing controls
@@ -160,7 +158,7 @@ use momo\core\helpers\DateTimeHelper;
 	
 					displayAlert("alertBox", "There are no bookings in the indicated date range.", "alert-info");
 		
-				<?php else : ?>
+				<?php elseif ( $component_targetuser !== null ) : ?>
 		
 					displayAlert("alertBox", "There are no bookings on record.", "alert-info");
 			
@@ -171,7 +169,6 @@ use momo\core\helpers\DateTimeHelper;
 		<?php endif; ?>
 		
 	});
-	
 	
 </script>
 
@@ -191,7 +188,7 @@ use momo\core\helpers\DateTimeHelper;
 	    			
 					<select id="targetUserId" name="targetUserId" class="span2">
 					
-						<option value="-1" selected="selected">(all users)</option>
+						<option value="-1" selected="selected">please select...</option>
 							
 						<?php foreach ( $component_users as $curUser ) : ?>
 							
