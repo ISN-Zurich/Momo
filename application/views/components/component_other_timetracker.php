@@ -1225,7 +1225,7 @@ use momo\core\helpers\DateTimeHelper;
 								action="/timetracker/createregularentry"
 								class="form-inline" 
 								method="post"
-								style="display: none;">
+								style="display: none; margin-bottom: 5px;">
 										
 								<select name="typeId" style="width: 200px;" tabindex="1">
 									<?php foreach( $timetracker_entrytypes as $curType ) :  ?>
@@ -1314,12 +1314,6 @@ use momo\core\helpers\DateTimeHelper;
 								
 							<?php endforeach; ?>
 							
-							<?php if ($curDayAggregate["project_entries"]->count() != 0) : ?>
-								<div style="margin-left: 8px; font-size: smaller;">
-									total: <?php echo DateTimeHelper::formatTimeValueInSecondsToHHMM($curDayAggregate["total_project_time_credit"]) . " h"; ?>
-								</div>
-							<?php endif; ?>
-							
 							<!-- 
 								a blank form for creating new project entries
 							-->	
@@ -1329,7 +1323,7 @@ use momo\core\helpers\DateTimeHelper;
 									action="/timetracker/createprojectentry"
 									class="form-inline" 
 									method="post"
-									style="display: none;">
+									style="display: none; margin-bottom: 5px;">
 										
 								<select name="projectId" style="width: 200px;" tabindex="1">
 									<?php foreach( $timetracker_projects as $curProject ) :  ?>
@@ -1349,6 +1343,12 @@ use momo\core\helpers\DateTimeHelper;
 								<input name="entryDate" type="hidden" value="<?php echo DateTimeHelper::formatDateTimeToStandardDateFormat($curDayDate); ?>" />
 								
 							</form>
+							
+							<?php if ($curDayAggregate["project_entries"]->count() != 0) : ?>
+								<div style="margin-left: 8px; font-size: smaller;">
+									total: <?php echo DateTimeHelper::formatTimeValueInSecondsToHHMM($curDayAggregate["total_project_time_credit"]) . " h"; ?>
+								</div>
+							<?php endif; ?>
 						
 						</div>
 						
