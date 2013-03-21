@@ -129,7 +129,7 @@ $component_mode == "new" ? $action = "/managebookings/createbooking" : $action =
 
 			if ( autoAssignWorktimeCreditValue == "-1" ) {
 				validated = false;
-				validationMsg += "<strong>Auto worktime credit</strong> must be completed.";
+				validationMsg += "<strong>Auto Worktime Credit</strong> must be completed.";
 			}
 	
 		}
@@ -762,7 +762,7 @@ $component_mode == "new" ? $action = "/managebookings/createbooking" : $action =
 	
 								<div id="autoAssignWorktimeCredit_controls" style="<?php echo $autoAssignWorktimeCreditControlsStyle; ?>">
 									<div class="control-group">
-										<label for="autoAssignWorktimeCredit" class="control-label">Auto worktime credit</label>
+										<label for="autoAssignWorktimeCredit" class="control-label">Auto Worktime Credit</label>
 										<div class="controls">
 										
 											<select id="autoAssignWorktimeCredit" name="autoAssignWorktimeCredit" class="span1">
