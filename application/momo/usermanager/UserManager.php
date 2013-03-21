@@ -447,10 +447,6 @@ class UserManager extends BaseManager {
  
 		try {
 			
-			// save pre update state
-			$updateTargetClean = clone $updateTarget;
-			$preUpdatePrimaryTeam = $updateTargetClean->getPrimaryTeam();
-			
 			//
 			// deal with all simple properties first
 			$updateTarget->setFirstName($firstName);
@@ -462,94 +458,103 @@ class UserManager extends BaseManager {
 			$updateTarget->setWorkload($workload);
 			$updateTarget->setOffdays(serialize($offDays));
 			$updateTarget->setEnabled($enabled);
-			$updateTarget->setRole($role);
-			
+			$updateTarget->setBirthdate($birthdate);
+			$updateTarget->setEntrydate($entryDate);
+			$updateTarget->setExitdate($exitDate);
 			
 			//
 			// update the primary team membership as indicated
-					
 			if ( $primaryTeam === null ) {
-				
+				//
 				// the user is not to have a primary team
-				// --> see if there is already a junction record that indicates primary team membership
-				//     if so, clear the primary membership flag from it
+				
+				// see if there is already a junction record that indicates primary team membership
+				// if so, clear its primary membership flag
 				$junctionRecord = \TeamUserQuery::create()
 									->filterByPrimary(true)
 									->filterByUser($updateTarget)
 									->findOne();
 					
-				if ( $junctionRecord != null ) {
+				if ( $junctionRecord !== null ) {
 					$junctionRecord->setPrimary(false);
-					
-					// persist changes to junction record
 					$junctionRecord->save();	
 				}					
-									
 			}			
 			else {
+				//
+				// the indicated team is to be set as primary
 				
-				// the indicated team is to be set as primary,
-				// see if there is already a junction record that links the user to the indicated team
+				// see if there is already a junction record that defines the user as a primary member of another team
+				// and if so, clear primary team membership
 				$junctionRecord = \TeamUserQuery::create()
-									->filterByTeam($primaryTeam)
-									->filterByUser($updateTarget)
-									->findOne();
-				
-				// if so, simply update the junction record
-				if ( $junctionRecord != null ) {
+										->filterByUser($updateTarget)
+										->filterByPrimary(true)
+										->findOne();						
 					
-					// we reflect primary membership on the found junction record
-					$junctionRecord->setPrimary(true);
-					$junctionRecord->setSecondary(false);
-					
-					// persist changes to junction record
+				if ( $junctionRecord !== null ) {
+					$junctionRecord->setPrimary(false);
 					$junctionRecord->save();	
-					
 				}
-				// there is no relation to the indicated team
-				// --> we create it and  flag it accordingly
-				else {
 					
-					// set relation to the team
+				// if there is no relation to the indicated team, we set one
+				if ( ! $updateTarget->getTeams()->contains($primaryTeam) ) {
 					$updateTarget->addTeam($primaryTeam);
-					
-					//  persist changes to user record
 					$updateTarget->save();		
-					
-					// query for new user-team junction record
-					// (as it is new, it will have all type flags set to "false") and indicate primary membership
-					$junctionRecord = \TeamUserQuery::create()
-											->filterByUser($updateTarget)
-											->filterByTeam($primaryTeam)
-											->filterByPrimary(false)
-											->filterBySecondary(false)
-											->filterByLeader(false)
-											->findOne();		
-
-					// and reflect primary membeship
-					$junctionRecord->setPrimary(true);
-					
-					// persist changes to junction record
-					$junctionRecord->save();	
-							
 				}
+				
+				// query for the junction record to the indicated primary team
+				// and set membership to primary
+				$junctionRecord = \TeamUserQuery::create()
+										->filterByUser($updateTarget)
+										->filterByTeam($primaryTeam)
+										->findOne();		
 
+				$junctionRecord->setPrimary(true);
+				$junctionRecord->save();	
 			}
-		
-			$updateTarget->setBirthdate($birthdate);
-			$updateTarget->setEntrydate($entryDate);
-			$updateTarget->setExitdate($exitDate);
+			
+			// if there is a role switch and the user's new role is USER, we need to ensure that
+			// there is no team for which the user is configured as team leader
+			if ( 	($updateTarget->getRole() !== $role)
+				 && ($role === Roles::ROLE_USER) ) {
+				
+				// get all junction records for which user is configured as team leader
+				$junctionRecords = \TeamUserQuery::create()
+										->filterByLeader(true)
+										->filterByUser($updateTarget)
+										->find();
+
+				// remove team leader attribute on all records found
+				foreach ( $junctionRecords as $curJunctionRecord ) {
+					$curJunctionRecord->setLeader(false);
+					$curJunctionRecord->save();
+				}						
+	
+			}
+			
+			// set user's new role 
+			$updateTarget->setRole($role);
+			
+			
+			// delete stale user-team relations, i.e., those with all membership flags set to 'false'
+			// (above operations on team-user junction records might lead to these)
+			\TeamUserQuery::create()
+								->filterByUser($updateTarget)
+								->filterByPrimary(false)
+								->filterBySecondary(false)
+								->filterByLeader(false)
+								->find()
+								->delete();
 			
 			// persist updates
 			$updateTarget->save();
-			
+				
+			//
+			// TODO move all updates of related state to ManageUsersController
+			//
 			
 			//
 			// updating a user entity calls for management of related application state
-			//
-			
-			//
-			// TODO move all updates of related state to controller
 			//
 			
 			// first, reinitialize all workplans for the user - this takes care of possible changes in employment period
@@ -577,35 +582,6 @@ class UserManager extends BaseManager {
 			$enforcementService->recomputeAllOvertimeLapses($updateTarget);
 			$enforcementService->recomputeAllVacationLapses($updateTarget);	
 			
-			//
-			// write event to audit trail
-			
-			// prepare a string describing the off new days
-			$offDaysAsString = null;
-			foreach ( FormHelper::$workDayOptions as $curWorkDayValue => $curWorkDayText ) {
-				if ( $updateTarget->getDayOffValueForWeekDayNumber($curWorkDayValue) !== null ) {
-					
-					if ( $offDaysAsString == null ) {
-						$offDaysAsString = "";
-					}
-					
-					$offDaysAsString .= FormHelper::$workDayOptions[$curWorkDayValue] . " ";
-				}
-			}
-			
-			// prepare a string describing the old new days
-			$preUpdateOffDaysAsString = null;
-			foreach ( FormHelper::$workDayOptions as $curWorkDayValue => $curWorkDayText ) {
-				if ( $updateTargetClean->getDayOffValueForWeekDayNumber($curWorkDayValue) !== null ) {
-					
-					if ( $preUpdateOffDaysAsString == null ) {
-						$preUpdateOffDaysAsString = "";
-					}
-					
-					$preUpdateOffDaysAsString .= FormHelper::$workDayOptions[$curWorkDayValue] . " ";
-				}
-			}
-
 			// commit TX
 			$con->commit();
 			
