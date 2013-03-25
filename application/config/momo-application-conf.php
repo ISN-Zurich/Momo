@@ -30,7 +30,7 @@
 
 //
 // application version
-$config['momo']['version'] = 'HEAD';
+$config['momo']['version'] = '1.2.0';
 
 //
 // site name
