@@ -84,7 +84,6 @@ class ManageBookingsController extends Momo_Controller {
 		$targetUser = null;
 		$fromDate = null;
 		$untilDate = null;
-		$untilDateForQuery = null;
 		$ooBookings = new \PropelCollection(array());
 		
 		// process params that govern display of list
@@ -106,8 +105,6 @@ class ManageBookingsController extends Momo_Controller {
 			// i.e., "until 20-1-2012 00:00h" is taken to mean "until 21-1-2012 00:00h" - that way all bookings that extend to the 20th will be
 			// returned in the result
 			$untilDate = DateTimeHelper::getDateTimeFromStandardDateFormat($this->input->post('untilDate'));
-			$untilDateForQuery = DateTimeHelper::getDateTimeFromStandardDateFormat($this->input->post('untilDate'));
-			$untilDateForQuery->modify("+1 day");
 		}
 		
 		//
