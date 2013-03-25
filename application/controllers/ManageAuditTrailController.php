@@ -109,8 +109,7 @@ class ManageAuditTrailController extends Momo_Controller {
 				$fromDate = DateTimeHelper::getStartOfWeek(DateTimeHelper::getDateTimeForCurrentDate());
 			}			
 		}
-		
-		
+			
 		//
 		// "until" date
 		$untilDate = null;
@@ -119,7 +118,7 @@ class ManageAuditTrailController extends Momo_Controller {
 			//		
 			// if there is a valid date passed, we accept it and persist it to the session
 			$untilDate = DateTimeHelper::getDateTimeFromStandardDateFormat($this->input->post('untilDate'));
-			$untilDateForQuery = $untilDate;
+			$untilDateForQuery = DateTimeHelper::addDaysToDateTime($untilDate, 1);;
 			
 			// persist to session
 			$this->session->set_userdata('manageaudittrailcontroller.view_audittrail.untildate', $untilDate);
@@ -150,11 +149,11 @@ class ManageAuditTrailController extends Momo_Controller {
 				// if there is no session value to restore, we default to a one week range (based on current from date)	
 				$untilDate = DateTimeHelper::addDaysToDateTime($fromDate, 6);
 				// again, we compensate for one day due to timestamp comparison
-				$untilDate = DateTimeHelper::addDaysToDateTime($untilDate, 1);
-				
-				$untilDateForQuery = $untilDate;
+				$untilDateForQuery = DateTimeHelper::addDaysToDateTime($untilDate, 1);
 			}	
 		}
+		
+	
 		
 		//
 		// target module
