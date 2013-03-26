@@ -72,7 +72,7 @@
 				    <table class="table table-striped table-condensed">
 				      	<thead>
 						    <tr>
-							    <th>Team</th>
+							    <th>Name</th>
 							    <th>Team Leaders</th>
 							    <th>Primary Members</th>
 							    <th>Secondary Members</th>
