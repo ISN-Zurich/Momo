@@ -12,7 +12,7 @@ As time plays a major role in the story, we felt it would be an apt name for our
 Release Information
 *******************
 
-A release is pending.
+The current release is v1.2.0
 
 *******************
 Server Requirements
