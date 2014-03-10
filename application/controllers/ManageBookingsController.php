@@ -428,7 +428,13 @@ class ManageBookingsController extends Momo_Controller {
 				if ( $originalRequestStatus !== $this->input->post("requestStatus") ) {
 					
 					// figure out pretty name of oo booking type
-					$prettyOOBookingTypeName = $editTarget->getOOBookingType();
+
+//2014-02-24 MKY @ ISN 
+//get the actual type of the oobookingtype, not the bookingtype object itself.
+					//$prettyOOBookingTypeName = $editTarget->getOOBookingType();
+					$prettyOOBookingTypeName = $editTarget->getOOBookingType()->getType();
+//2014-02-24 MKY END
+
 					if ( $editTarget->getOOBookingType()->getCreator() == \OOBookingType::CREATOR_SYSTEM ) {
 						$prettyOOBookingTypeName = \OOBookingType::$BOOKABLE_SYSTEM_TYPE_MAP[$editTarget->getOOBookingType()->getType()];
 					}

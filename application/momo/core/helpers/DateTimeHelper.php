@@ -352,7 +352,7 @@ class DateTimeHelper {
 	
 	
 	/**
-	 * Returns the current month (no leading zeros)
+	 * Returns the current year (no leading zeros)
 	 *	 	
 	 * @return	integer							
 	 */

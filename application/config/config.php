@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://momo/';
+$config['base_url']	= 'http://localhost/momo/';
 
 /*
 |--------------------------------------------------------------------------

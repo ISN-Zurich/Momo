@@ -99,7 +99,7 @@ use momo\core\helpers\DateTimeHelper;
 		   				<strong>Vacation taken</strong>
 		   			</td>
 		   			<td width="35%" style="border: none; text-align: right;">
-		   				<?php printf("%.1f days", round($timetracker_vacation_taken, 1)); ?>
+		   				<?php printf("%.2f days", round($timetracker_vacation_taken, 2)); ?>
 		   			</td>
 		   			<td width="*" style="border: none;">
 		   				<span 	id="popover_vacationtaken"
@@ -113,7 +113,7 @@ use momo\core\helpers\DateTimeHelper;
 		   				<strong>Vacation booked</strong>
 		   			</td>
 		   			<td style="border: none; text-align: right;">
-		   				<?php printf("%.1f days", round($timetracker_vacation_booked, 1)); ?>
+		   				<?php printf("%.2f days", round($timetracker_vacation_booked, 2)); ?>
 		   			</td>
 		   			<td style="border: none;">
 		   				<span 	id="popover_vacationbooked"
@@ -127,8 +127,8 @@ use momo\core\helpers\DateTimeHelper;
 		   				<strong>Vacation balance</strong>
 		   			</td>
 		   			<td style="border: none; text-align: right;">
-		   				<?php printf("%.1f days", round($timetracker_vacation_balance_effective, 1)); ?>
-		   				<em><?php printf("%.1f days", round($timetracker_vacation_balance_projected, 1)); ?></em>
+		   				<?php printf("%.2f days", round($timetracker_vacation_balance_effective, 2)); ?>
+		   				<em><?php printf("%.2f days", round($timetracker_vacation_balance_projected, 2)); ?></em>
 		   			</td>
 		   			<td style="border: none;">
 		   				<span id="popover_vacationbalance"

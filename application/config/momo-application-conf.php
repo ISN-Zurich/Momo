@@ -78,7 +78,7 @@ $config['momo']['email_from_address'] = 'noreply@momo.isn.ethz.ch';
 $config['momo']['email_from_name'] = 'Momo';
 
 // this key determines where notification emails are sent when key "environment" is other than 'production'
-$config['momo']['email_to_address_non_production'] = 'krattiger@sipo.gess.ethz.ch';
+$config['momo']['email_to_address_non_production'] = 'yasuda@sipo.gess.ethz.ch';
 
 
 //

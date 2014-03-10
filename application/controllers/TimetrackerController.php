@@ -290,6 +290,34 @@ class TimetrackerController extends Momo_Controller {
 		//
 		// obtain a digest of vacation stats, this will contain all vacation related information as actually recorded in the system
 		$vacationStatisticsDigest = $compService->computeVacationStatisticsDigestForUser($displayUser);
+
+/**
+
+	2013-11-11  MKY @ ISN
+	
+	Not the neatest modification, but the least potentially destructive to current system.
+	Added extra calculation of vacation stats using knowledge of the displayUser's contract end date set as the target date.
+	
+*/
+		//
+		// obtain a digest of vacation stats with respect to the user's exit date.
+		$mky_temp_displayUserExitDate = $displayUser->getExitDate() ;
+		$mky_temp_vacationStatisticsDigest = $compService->computeVacationStatisticsDigestForUser($displayUser , $mky_temp_displayUserExitDate);
+
+		//
+		//overwrite the effective balance value
+		$vacationStatisticsDigest["aggregate_results"]["global_vacation_days_balance_effective"] = $mky_temp_vacationStatisticsDigest["aggregate_results"]["global_vacation_days_balance_effective"];
+
+// var_dump just used while testing
+// var_dump( $mky_temp_vacationStatisticsDigest ) ;
+
+/**
+
+	2013-11-11  MKY @ ISN
+	
+	With the value for effective vacation balance overwritten, our changes have finished
+	
+*/
 		
 		// 
 		// set data points that are dependent on what timetracker we're looking at
